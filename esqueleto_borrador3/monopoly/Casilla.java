@@ -28,7 +28,53 @@ public class Casilla {
     private ArrayList<Avatar> avatares; //Avatares que están situados en la casilla.
     private int hipotecada;  //Nueva clase, 0 si no está hipotecada, 1 si está hipotecada y 2 si no es una casilla hipotecable
 
+    public String getNombre() {
+        return nombre;
+    }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public float getValor() {
+        return valor;
+    }
+
+    public void setValor(float valor) {
+        this.valor = valor;
+    }
+
+    public int getPosicion() {
+        return posicion;
+    }
+
+    public void setPosicion(int posicion) {
+        this.posicion = posicion;
+    }
+
+    public Jugador getDuenho() {
+        return duenho;
+    }
+
+    public void setDuenho(Jugador duenho) {
+        this.duenho = duenho;
+    }
+
+    public Grupo getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(Grupo grupo) {
+        this.grupo = grupo;
+    }
 
     //Constructores:
     public Casilla() {
@@ -134,6 +180,18 @@ public class Casilla {
             System.out.println("No se puede eliminar el avatar porque no está en la lista de jugadores.\n");       //Si el avatar no está en el array, no lo podemos eliminar e informamos de ello
         }
     }
+
+    public static void imprimir_en_venta(ArrayList<Casilla> casillas_lados, Jugador banca) {
+        for (Casilla e : casillas_lados) {
+            if (e.getDuenho() == null || e.getDuenho() == banca) {
+                System.out.println("Casilla: " + e.getNombre());
+                System.out.println("Tipo: " + e.getTipo());
+                System.out.println("Grupo: " + (e.getGrupo() != null ? e.getGrupo().getColorGrupo() : "-"));
+                System.out.println("Valor: " + e.getValor() + "€\n");
+            }
+        }
+    }
+
 
     /*Método para evaluar qué hacer en una casilla concreta. Parámetros:
      * - Jugador cuyo avatar está en esa casilla.
@@ -393,3 +451,4 @@ public class Casilla {
 //
 
  */
+

@@ -28,6 +28,13 @@ public class Tablero {
         this.generarCasillas();
     }
 
+    public ArrayList<Casilla> getLado(int indice) {
+        if(indice >= 0 && indice < posiciones.size()){
+            return posiciones.get(indice);
+        } else {
+            return null; // O lanzar excepción si prefieres
+        }
+    }
 
     //Método para crear todas las casillas del tablero. Formado a su vez por cuatro métodos (1/lado).
     private void generarCasillas() {
@@ -52,7 +59,9 @@ public class Tablero {
         norte.add(new Casilla("Solar17", "Solar", 30, Valor.SOLAR17_PRECIO, banca));
         norte.add(new Casilla("IrCarcel", "Especial", 31, banca));
 
+
     }
+
 
     //Método para insertar las casillas del lado sur.
     private void insertarLadoSur() {
@@ -101,6 +110,14 @@ public class Tablero {
         este.add(new Casilla("Solar21", "Solar", 38, Valor.SOLAR21_PRECIO, banca));
         este.add(new Casilla("Imp2", 39, Valor.IMPUESTO_VALOR, banca));
         este.add(new Casilla("Solar22", "Solar", 40, Valor.SOLAR22_PRECIO, banca));
+    }
+
+    public ArrayList<ArrayList<Casilla>> getPosiciones() {
+        return posiciones;
+    }
+
+    public void setPosiciones(ArrayList<ArrayList<Casilla>> posiciones) {
+        this.posiciones = posiciones;
     }
 
     //Para imprimir el tablero, modificamos el método toString().
@@ -183,6 +200,7 @@ public class Tablero {
         return null;
     }
 
+
     private String getContenidoCasilla(Casilla c, int fila, int ancho) {
         String nombre = c.getNombre();
         String tipo = c.getTipo();
@@ -195,6 +213,8 @@ public class Tablero {
         return "";
     }
 
+
+
     // Centra o recorta texto dentro de una casilla
     //substring crea una cadena q empieza en el primer parametro y acaba en el segundo
     private String recortarCentro(String texto, int ancho) {
@@ -205,3 +225,5 @@ public class Tablero {
         return " ".repeat(izquierda) + texto + " ".repeat(derecha);
     }
 }
+
+

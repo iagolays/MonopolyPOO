@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.io.File; //impórtanse a clase para ficheiros
 import java.util.Scanner;
 
+import static monopoly.Casilla.imprimir_en_venta;
+
 public class Menu {
 
     //Atributos
@@ -150,8 +152,26 @@ public class Menu {
     }
 
     // Metodo que realiza las acciones asociadas al comando 'listar enventa'.
-    private void listarVenta() {
+    private void listarVenta(Tablero tablero) {
+
+        ArrayList<Casilla> sur= tablero.getLado(0);
+
+        imprimir_en_venta(sur,banca);
+
+        ArrayList<Casilla> oeste= tablero.getLado(1);
+
+        imprimir_en_venta(oeste,banca);
+
+        ArrayList<Casilla> norte= tablero.getLado(2);
+
+        imprimir_en_venta(norte,banca);
+
+        ArrayList<Casilla> este= tablero.getLado(3);
+
+        imprimir_en_venta(este,banca);
+
     }
+
 
     // Metodo que realiza las acciones asociadas al comando 'listar jugadores'.
     private void listarJugadores() {
