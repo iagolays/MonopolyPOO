@@ -18,13 +18,14 @@ public class Jugador {
     private ArrayList<Casilla> propiedades; //Propiedades que posee el jugador.
     private ArrayList<Casilla> hipotecas;
     private ArrayList<String> edificios;
-
     private boolean enBancarrota;    //0 si el jugador no está en bancarrota; 1 si está en bancarrota
+
+
 
     //Constructor vacío. Se usará para crear la banca.
     public Jugador() {
         this.nombre = "Banca";
-        this.fortuna = 0;
+        this.fortuna = Valor.FORTUNA_BANCA;
         this.gastos = 0;
         this.enCarcel  = false;
         this.tiradasCarcel = 0;
@@ -45,7 +46,7 @@ public class Jugador {
     public Jugador(String nombre, String tipoAvatar, Casilla inicio, ArrayList<Avatar> avCreados) {
         //Comprobar que non exista un xogador co mesmo nome ou avatar repetido
         this.nombre = nombre;
-        this.fortuna = 15000000; //saldo inicial do xogador
+        this.fortuna = Valor.FORTUNA_INICIAL; //saldo inicial do xogador
         this.gastos = 0;
         this.enCarcel  = false;
         this.tiradasCarcel = 0;
@@ -62,17 +63,19 @@ public class Jugador {
     //Otros métodos:
     //Metodo para añadir una propiedad al jugador. Como parámetro, la casilla a añadir.
     public void anhadirPropiedad(Casilla casilla) {
-        if (!propiedades.contains(casilla)) { //compóbase que o xogador non teña esa propiedade
+        if (casilla!= null && !propiedades.contains(casilla)) { //compóbase que un xogador non teña esa propiedade
             propiedades.add(casilla);
-            System.out.println((this.nombre + "adquiere" + casilla.getNombre()));
+            System.out.println(this.nombre + " adquire " + casilla.getNombre());
+            // IMPORTANTE: Aquí deberíamos tamén establecer o xogador como dono da casilla
         }
     }
 
     //Metodo para eliminar una propiedad del arraylist de propiedades de jugador.
     public void eliminarPropiedad(Casilla casilla) {
-        if (propiedades.contains(casilla)){
+        if (casilla!= null && propiedades.contains(casilla)){
             propiedades.remove(casilla);
-            System.out.println((this.nombre + "pierde" + casilla.getNombre()));
+            System.out.println((this.nombre + "perde" + casilla.getNombre()));
+            // IMPORTANTE: Aquí deberíamos tamén eliminar o xogador como dono da casilla
         }
 
     }
@@ -82,9 +85,10 @@ public class Jugador {
     public void sumarFortuna(float valor) {
         this.fortuna += valor;
         if (valor > 0){
-            System.out.println(this.nombre + "recibe" + valor + "€. Su fortuna es: " + this.fortuna + "€");
+            System.out.println(this.nombre + "recibe" + valor + "€. A súa fortuna é: " + this.fortuna + "€");
         } else {
-            System.out.println(this.nombre + "paga" + (-valor) + "€. Su fortuna es: " + this.fortuna + "€");
+            sumarGastos(Math.abs(valor)); // Usamos valor absoluto para evitar gastos negativos
+            System.out.println(this.nombre + "paga" + (-valor) + "€. A súa fortuna é: " + this.fortuna + "€");
         }
     }
 
@@ -100,38 +104,92 @@ public class Jugador {
         this.enCarcel = true;
         this.tiradasCarcel = 0;
 
-        //buscar casilla carcel é mover o avatar alí
+        //buscar casilla carcel
         Casilla carcel = null;
-        for (ArrayList<Casilla> lado : pos){
-            for (Casilla casilla : lado){
-                if (casilla.getNombre().equalsIgnoreCase("Carcel")){
+        for (ArrayList<Casilla> fila : pos){ // Percorremos cada lado do taboleiro
+            for (Casilla casilla : fila){ // Percorremos cada casilla do lado
+                if ("Carcel".equalsIgnoreCase(casilla.getNombre())){
                     carcel = casilla;
                     break;
                 }
             }
             if (carcel != null){
-                break;
+                break; // Se xa atopamos a cárcere, saímos do bucle externo
             }
         }
-        if (carcel != null && this.avatar != null){
-            //movemos o avatar á carcel
-            this.avatar.getLugar().eliminarAvatar(this.avatar);
-            this.avatar.moverAvatar("carcel", tiradasCarcel);
+        // Movemos o avatar á cárcere
+        if (carcel != null && this.avatar != null) {
+            // Quitamos o avatar da súa casilla actual
+            Casilla casillaActual = this.avatar.getLugar();
+            if (casillaActual != null) {
+                casillaActual.eliminarAvatar(this.avatar);
+            }
+
+            // Colocamos o avatar na cárcere
+            this.avatar.setLugar(carcel);
             carcel.anhadirAvatar(this.avatar);
+            System.out.println("O xogador " + this.nombre + " foi encarcelado.");
         }
-        System.out.println((this.nombre + "va a la carcel"));
     }
 
     //Metodo para saber si un jugador tiene suficiente dinero para pagar, y declarar en bancarrota si no puede
     public boolean puedePagar(float valor) {
         // Se o xogador ten que facer un pago, é necesario comprobar se o diñeiro que ten é suficiente
-       if(this.fortuna + valor >= 0) {         //Se al restar el valor que hay que pagar, sigue quedando un valor positivo, entonces se puede pagar
+       if(this.fortuna >= valor) {
            return true;
-       }else{    //Si al restar el valor queda un valor negativo, el jugador actual no tiene dinero para pagar
-           this.enBancarrota = true;       //Se declara al jugador en bancarrota
-           return false;          //No puede pagar, se devuelve false
+       }else{
+           this.enBancarrota = true;       //Declárase ao xogador en bancarrota
+           System.out.println(this.nombre + " declárase en BANCARROTA! Non pode pagar " + valor + "€");
+           return false;          //Non pode pagar, volvese false
        }
     }
+    /**
+     * Transfire todas as propiedades dun xogador a outro xogador (por bancarrota)
+     * @param acreedor - Xogador que recibirá as propiedades
+     */
+    public boolean transferirPropiedades(Jugador acreedor) {
+        if (acreedor == null) {
+            System.out.println("Erro: Acreedor non válido");
+            return false;
+        }
+
+        System.out.println("Transferindo propiedades de " + this.nombre + " a " + acreedor.getNombre());
+
+        // Contar propiedades antes da transferencia
+        int propiedadesIniciais = this.propiedades.size();
+        int hipotecasIniciais = this.hipotecas.size();
+
+        // Transferir todas as propiedades
+        for (Casilla propiedad : new ArrayList<>(this.propiedades)) {
+            // Eliminar da lista do deudor
+            this.eliminarPropiedad(propiedad);
+
+            // Engadir á lista do acreedor
+            propiedad.setDuenho(acreedor);
+            acreedor.anhadirPropiedad(propiedad);
+
+            System.out.println("  - " + propiedad.getNombre() + " transfírese a " + acreedor.getNombre());
+        }
+
+        // Transferir hipotecas (se as hai)
+        for (Casilla hipoteca : new ArrayList<>(this.hipotecas)) {
+            this.hipotecas.remove(hipoteca);
+            acreedor.getHipotecas().add(hipoteca);
+            System.out.println("  - Hipoteca de " + hipoteca.getNombre() + " transfírese");
+        }
+
+        // Marcar como en bancarrota
+        this.enBancarrota = true;
+        this.fortuna = 0f;
+
+        System.out.println("Transferencia completada.");
+        System.out.println("   Propiedades transferidas: " + propiedadesIniciais);
+        System.out.println("   Hipotecas transferidas: " + hipotecasIniciais);
+        System.out.println("   Fortuna final: " + this.fortuna + "€");
+        // Devolver true só se non quedan propiedades
+        return this.propiedades.isEmpty() && this.hipotecas.isEmpty();
+    }
+
 
     public String getNombre() {
         return nombre;
@@ -153,28 +211,32 @@ public class Jugador {
         return hipotecas;
     }
 
-    public void setHipotecas(ArrayList<Casilla> hipotecas) {
-        this.hipotecas = hipotecas;
-    }
-
     public ArrayList<String> getEdificios() {
         return edificios;
     }
 
-    public void setEdificios(ArrayList<String> edificios) {
-        this.edificios = edificios;
+    public void setFortuna(float fortuna) {
+        this.fortuna = fortuna;
+    }
+    public boolean isEnCarcel() {
+        return enCarcel;
     }
 
-    public void anhadirHipoteca(Casilla casilla) {
-        if (!hipotecas.contains(casilla)) {
-            hipotecas.add(casilla);
-        }
+    public void setEnCarcel(boolean enCarcel) {
+        this.enCarcel = enCarcel;
     }
 
-    public void anhadirEdificio(String edificio) {
-        edificios.add(edificio);
+    public void setTiradasCarcel(int tiradasCarcel) {
+        this.tiradasCarcel = tiradasCarcel;
     }
 
+    @Override
+    public String toString() {
+        return "{nombre: " + nombre +
+                ", avatar: " + avatar.getId() +
+                ", fortuna: " + fortuna +
+                ", propiedades: " + propiedades.size() + "}";
+    }
 
 }
 
