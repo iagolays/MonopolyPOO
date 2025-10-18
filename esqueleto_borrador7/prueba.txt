@@ -1,0 +1,58 @@
+crear jugador Ana coche
+crear jugador Brais sombrero
+
+ver tablero
+listar jugadores
+listar enventa
+
+lanzar dados 2+3
+
+comprar Solar2
+describir Solar2
+describir jugador Ana
+acabar turno
+
+
+lanzar dados 4+2
+
+comprar Trans1
+describir Trans1
+describir jugador Brais
+acabar turno
+
+
+lanzar dados 3+4
+
+comprar Solar4
+describir jugador Ana
+acabar turno
+
+
+lanzar dados 5+3
+
+comprar Serv1
+describir Serv1
+describir jugador Brais
+acabar turno
+
+
+lanzar dados 2+5
+
+comprar Solar6
+describir Solar6
+describir jugador Ana
+acabar turno
+
+
+lanzar dados 3+3
+
+comprar Solar9
+describir jugador Brais
+acabar turno
+
+listar jugadores
+listar enventa
+ver tablero
+
+salir
+
